@@ -1,26 +1,71 @@
-# Exercício NgRx - Todo List
-Neste Repositorio tem a resposta da questão 3.2 Gerencimento de Estado com NgRx (Feature To-do)
-Projeto Angular 17+ pronto para rodar, implementando o exercício de Gerenciamento de Estado com NgRx.
+# Avaliação Técnica - Desenvolvedor Front-end (Angular)
 
-## O que tem no projeto
+Este repositório reúne as respostas das questões teóricas da avaliação técnica para a vaga de **Desenvolvedor Front-end (Angular)**.
 
-- Actions: `loadTodos`, `loadTodosSuccess`, `loadTodosError`, `toggleTodoComplete`
-- Actions extras para a interface: `addTodo`, `updateTodo`, `deleteTodo`
-- Reducer tipado com `createReducer`
-- Selectors com `createSelector`
-- Effect com chamada mockada via service
-- Tela visual inspirada no layout enviado
-- Criar, editar, excluir e marcar tarefa como concluída
+## Conteúdo
 
-## Rodar o projeto
+As respostas implementadas neste repositório contemplam as seguintes questões:
 
-```bash
-npm install
-npm start
-```
+- ✅ 1.1 Refatoração (TypeScript e Qualidade de Código)
+- ✅ 1.2 Generics e Tipos Utilitários
+- ✅ 2.1 Change Detection e OnPush
+- ✅ 2.2 RxJS – Eliminando Subscriptions Aninhadas
+- ✅ 2.3 RxJS – Busca com Debounce
+- ✅ 2.4 Performance – OnPush e trackBy
+- ✅ 3.1 Angular Signals – Estado Local
 
-Acesse:
+As respostas completas podem ser consultadas em:
 
-```text
-http://localhost:4200
-```
+**📄 Respostas.md**
+
+---
+
+# Questão 3.2 – Gerenciamento de Estado com NgRx
+
+A implementação prática da questão **3.2 (Feature To-do utilizando NgRx)** foi desenvolvida em um projeto Angular separado.
+
+### Funcionalidades implementadas
+
+- Actions
+  - `loadTodos`
+  - `loadTodosSuccess`
+  - `loadTodosError`
+  - `toggleTodoComplete`
+
+- Reducer utilizando `createReducer`
+
+- Selectors
+  - `selectAllTodos`
+  - `selectPendingTodos`
+
+- Effect para carregamento assíncrono utilizando RxJS
+
+- Projeto desenvolvido em Angular Standalone
+
+### Interface da aplicação
+
+![Todo List](./todo-list.png)
+
+---
+
+## Repositório do projeto Angular
+
+**GitHub:**
+
+https://github.com/Nambundo/attus-ngrx-exercicio
+
+---
+
+## Tecnologias utilizadas
+
+- Angular 17+
+- TypeScript
+- RxJS
+- NgRx
+- Angular Signals
+
+---
+
+## Autor
+
+Jones Márcio Nambundo
