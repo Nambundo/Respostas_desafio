@@ -2,7 +2,7 @@
 
 > Documento consolidado com as perguntas feitas e as respectivas respostas técnicas.
 
-## 1. Refatoração
+## 1.1 Refatoração
 
 ### Pergunta
 
@@ -144,7 +144,7 @@ class Verdureira {
 - **`toString()` no `Produto`**: move a formatação de exibição para a própria entidade.
 - **`temEstoque` como getter booleano**: substitui `if/else` redundante por expressão direta.
 
-## 2. Generics e tipos utilitários
+## 1.2. Generics e tipos utilitários
 
 ### Pergunta
 
@@ -251,7 +251,7 @@ const resultado = filtrarEPaginar(
 - **Sem `any` em nenhum ponto**.
 
 
-## 3. Angular — Change Detection e OnPush
+## 2.1. Angular — Change Detection e OnPush
 
 ### Pergunta
 
@@ -403,7 +403,7 @@ Vantagens: sem `unsubscribe()` manual, sem `ChangeDetectorRef` injetado.
 
 ---
 
-## 4. RxJS — eliminando subscriptions aninhadas
+## 2.2. RxJS — eliminando subscriptions aninhadas
 
 ### Pergunta
 
@@ -517,7 +517,7 @@ Elimina completamente o `ngOnDestroy` manual e o `Subject`.
 
 ---
 
-## 5. RxJS — busca com debounce
+## 2.3. RxJS — busca com debounce
 
 ### Pergunta
 
@@ -668,7 +668,7 @@ readonly estado$: Observable<EstadoBusca> = this.termoBusca.valueChanges.pipe(
 
 ---
 
-## 6. Performance — OnPush e trackBy
+## 2.4 Performance — OnPush e trackBy
 
 ### Pergunta
 
@@ -719,7 +719,7 @@ trackByProdutoId(index: number, produto: Produto): number {
 
 **Cuidados**: nunca usar `index` como chave se a lista pode ser reordenada/filtrada; usar sempre uma propriedade única e estável do domínio (ID, UUID).
 
-#### 2. `OnPush` reduzindo ciclos desnecessários
+#### 2.4 `OnPush` reduzindo ciclos desnecessários
 
 Na estratégia `Default`, qualquer evento assíncrono monitorado pela Zone dispara verificação em **toda a árvore de componentes**. Com `OnPush`, o componente de lista só é reavaliado quando:
 
@@ -736,7 +736,7 @@ Isso permite que o Angular **pule subárvores inteiras** quando componentes irm�
 - **`OnPush`** reduz a *frequência* das checagens.
 - **`trackBy`** reduz o *custo* de cada checagem, quando ela ocorre.
 
-#### 3. Impacto de usar `Default`
+#### 2.4. Impacto de usar `Default`
 
 | Cenário | Frequência de checagem da lista | Custo de cada atualização de dados |
 |---|---|---|
@@ -749,7 +749,7 @@ A combinação `OnPush` + `trackBy` é o padrão recomendado para listas de tama
 
 ---
 
-## 7. Angular Signals — estado local
+## 3.1 Angular Signals — estado local
 
 ### Pergunta
 
@@ -761,125 +761,12 @@ Criar um componente de contador de itens no carrinho usando exclusivamente Signa
 - Um `output()` que emite sempre que o total mudar
 
 ### Resposta
-
-```typescript
-import {
-  Component,
-  signal,
-  computed,
-  effect,
-  output,
-  ChangeDetectionStrategy,
-} from '@angular/core';
-
-export interface ItemCarrinho {
-  id: number;
-  descricao: string;
-  quantidade: number;
-  preco: number;
-}
-
-@Component({
-  selector: 'app-carrinho',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <ul>
-      @for (item of itens(); track item.id) {
-        <li>
-          {{ item.descricao }} — {{ item.quantidade }}x R$ {{ item.preco }}
-          <button (click)="removerItem(item.id)">Remover</button>
-        </li>
-      }
-    </ul>
-
-    <p>Total: R$ {{ total() }}</p>
-  `,
-})
-export class CarrinhoComponent {
-  // 1. Signal com a lista de itens (estado local, privado)
-  private readonly _itens = signal<ItemCarrinho[]>([]);
-  readonly itens = this._itens.asReadonly();
-
-  // 2. Computed: total = soma(quantidade * preço) de cada item
-  readonly total = computed(() =>
-    this._itens().reduce((acc, item) => acc + item.quantidade * item.preco, 0)
-  );
-
-  // 3. Output que emite sempre que o total mudar
-  readonly totalMudou = output<number>();
-
-  constructor() {
-    effect(() => {
-      this.totalMudou.emit(this.total());
-    });
-  }
-
-  // 4. Métodos para adicionar e remover itens
-  adicionarItem(novoItem: ItemCarrinho): void {
-    this._itens.update((itensAtuais) => {
-      const existente = itensAtuais.find((i) => i.id === novoItem.id);
-
-      if (existente) {
-        return itensAtuais.map((i) =>
-          i.id === novoItem.id
-            ? { ...i, quantidade: i.quantidade + novoItem.quantidade }
-            : i
-        );
-      }
-
-      return [...itensAtuais, novoItem];
-    });
-  }
-
-  removerItem(id: number): void {
-    this._itens.update((itensAtuais) => itensAtuais.filter((i) => i.id !== id));
-  }
-
-  alterarQuantidade(id: number, quantidade: number): void {
-    if (quantidade <= 0) {
-      this.removerItem(id);
-      return;
-    }
-
-    this._itens.update((itensAtuais) =>
-      itensAtuais.map((i) => (i.id === id ? { ...i, quantidade } : i))
-    );
-  }
-}
-```
-
-#### Exemplo de uso
-
-```typescript
-@Component({
-  selector: 'app-pagina-loja',
-  standalone: true,
-  imports: [CarrinhoComponent],
-  template: `<app-carrinho (totalMudou)="onTotalMudou($event)" />`,
-})
-export class PaginaLojaComponent {
-  onTotalMudou(novoTotal: number): void {
-    console.log('Novo total do carrinho:', novoTotal);
-  }
-}
-```
-
-#### Decisões de design
-
-- **Signal privado + `asReadonly()` público** — impede que código externo mute o estado diretamente; a única via de alteração são os métodos do componente.
-- **`computed()` para o total** — valor derivado e memoizado, recalculado só quando `_itens` muda.
-- **`effect()` para emitir o output** — dispara automaticamente quando `total()` muda, centralizando a notificação sem duplicar `emit()` em cada método.
-- **Imutabilidade nos updates** — cada atualização cria um novo array; essencial para os Signals detectarem mudança corretamente.
-- **Tratamento de item duplicado** — soma quantidade ao item existente em vez de duplicar entrada.
-- **`OnPush` "de graça"** — com Signals, o Angular sabe exatamente quais bindings dependem de quais signals, sem precisar de `markForCheck()` manual.
-
+Link : 
 ---
 
-## 8. Gerenciamento de Estado com NgRx (Feature To-do)
+## 3.2 Gerenciamento de Estado com NgRx (Feature To-do)
 
 ### Pergunta
-
 Implementar a estrutura de estado para uma lista de tarefas (To-do) utilizando os padrões recomendados do NgRx, incluindo:
 
 - **Actions**: `loadTodos`, `loadTodosSuccess`, `loadTodosError`, `toggleTodoComplete`.
@@ -888,291 +775,5 @@ Implementar a estrutura de estado para uma lista de tarefas (To-do) utilizando o
 - **Effect**: fluxo assíncrono — ao disparar `loadTodos`, chamada HTTP mockada e dispatch de sucesso/erro.
 
 ### Resposta
-
-#### Estrutura de arquivos
-
-```
-src/app/todos/
-├── models/
-│   └── todo.model.ts
-├── services/
-│   └── todo.service.ts
-└── state/
-    ├── todo.actions.ts
-    ├── todo.reducer.ts
-    ├── todo.selectors.ts
-    └── todo.effects.ts
-```
-
-#### Model
-
-```typescript
-// models/todo.model.ts
-export interface Todo {
-  id: number;
-  titulo: string;
-  concluida: boolean;
-}
-```
-
-#### Service (mock)
-
-```typescript
-// services/todo.service.ts
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
-import { Todo } from '../models/todo.model';
-
-@Injectable({ providedIn: 'root' })
-export class TodoService {
-  buscarTodos(): Observable<Todo[]> {
-    const mock: Todo[] = [
-      { id: 1, titulo: 'Comprar leite', concluida: false },
-      { id: 2, titulo: 'Estudar NgRx', concluida: false },
-      { id: 3, titulo: 'Revisar PR', concluida: true },
-    ];
-
-    return of(mock).pipe(delay(500));
-  }
-}
-```
-
-#### Actions
-
-```typescript
-// state/todo.actions.ts
-import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { Todo } from '../models/todo.model';
-
-export const TodoActions = createActionGroup({
-  source: 'Todo',
-  events: {
-    'Load Todos': emptyProps(),
-    'Load Todos Success': props<{ todos: Todo[] }>(),
-    'Load Todos Error': props<{ erro: string }>(),
-    'Toggle Todo Complete': props<{ id: number }>(),
-  },
-});
-```
-
-Alternativa com `createAction` (NgRx < 16 ou por preferência de estilo):
-
-```typescript
-import { createAction, props } from '@ngrx/store';
-import { Todo } from '../models/todo.model';
-
-export const loadTodos = createAction('[Todo] Load Todos');
-
-export const loadTodosSuccess = createAction(
-  '[Todo] Load Todos Success',
-  props<{ todos: Todo[] }>()
-);
-
-export const loadTodosError = createAction(
-  '[Todo] Load Todos Error',
-  props<{ erro: string }>()
-);
-
-export const toggleTodoComplete = createAction(
-  '[Todo] Toggle Todo Complete',
-  props<{ id: number }>()
-);
-```
-
-#### Reducer
-
-```typescript
-// state/todo.reducer.ts
-import { createReducer, on } from '@ngrx/store';
-import { Todo } from '../models/todo.model';
-import { TodoActions } from './todo.actions';
-
-export interface TodoState {
-  todos: Todo[];
-  carregando: boolean;
-  erro: string | null;
-}
-
-export const initialState: TodoState = {
-  todos: [],
-  carregando: false,
-  erro: null,
-};
-
-export const todoReducer = createReducer(
-  initialState,
-
-  on(TodoActions.loadTodos, (state): TodoState => ({
-    ...state,
-    carregando: true,
-    erro: null,
-  })),
-
-  on(TodoActions.loadTodosSuccess, (state, { todos }): TodoState => ({
-    ...state,
-    todos,
-    carregando: false,
-    erro: null,
-  })),
-
-  on(TodoActions.loadTodosError, (state, { erro }): TodoState => ({
-    ...state,
-    carregando: false,
-    erro,
-  })),
-
-  on(TodoActions.toggleTodoComplete, (state, { id }): TodoState => ({
-    ...state,
-    todos: state.todos.map((todo) =>
-      todo.id === id ? { ...todo, concluida: !todo.concluida } : todo
-    ),
-  }))
-);
-```
-
-#### Selectors
-
-```typescript
-// state/todo.selectors.ts
-import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { TodoState } from './todo.reducer';
-
-export const selectTodoState = createFeatureSelector<TodoState>('todos');
-
-export const selectAllTodos = createSelector(
-  selectTodoState,
-  (state: TodoState) => state.todos
-);
-
-export const selectPendingTodos = createSelector(
-  selectAllTodos,
-  (todos) => todos.filter((todo) => !todo.concluida)
-);
-
-export const selectCarregando = createSelector(
-  selectTodoState,
-  (state: TodoState) => state.carregando
-);
-
-export const selectErro = createSelector(
-  selectTodoState,
-  (state: TodoState) => state.erro
-);
-```
-
-#### Effects
-
-```typescript
-// state/todo.effects.ts
-import { Injectable } from '@angular/core';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, switchMap, of } from 'rxjs';
-import { TodoService } from '../services/todo.service';
-import { TodoActions } from './todo.actions';
-
-@Injectable()
-export class TodoEffects {
-  loadTodos$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(TodoActions.loadTodos),
-      switchMap(() =>
-        this.todoService.buscarTodos().pipe(
-          map((todos) => TodoActions.loadTodosSuccess({ todos })),
-          catchError((erro: unknown) =>
-            of(
-              TodoActions.loadTodosError({
-                erro: erro instanceof Error ? erro.message : 'Erro ao carregar tarefas',
-              })
-            )
-          )
-        )
-      )
-    )
-  );
-
-  constructor(
-    private readonly actions$: Actions,
-    private readonly todoService: TodoService
-  ) {}
-}
-```
-
-#### Registro no app (standalone)
-
-```typescript
-// app.config.ts
-import { ApplicationConfig } from '@angular/core';
-import { provideStore } from '@ngrx/store';
-import { provideEffects } from '@ngrx/effects';
-import { todoReducer } from './todos/state/todo.reducer';
-import { TodoEffects } from './todos/state/todo.effects';
-
-export const appConfig: ApplicationConfig = {
-  providers: [
-    provideStore({ todos: todoReducer }),
-    provideEffects([TodoEffects]),
-  ],
-};
-```
-
-#### Exemplo de uso em componente
-
-```typescript
-import { Component, OnInit } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { TodoActions } from '../state/todo.actions';
-import { selectAllTodos, selectPendingTodos, selectCarregando } from '../state/todo.selectors';
-
-@Component({
-  selector: 'app-todo-list',
-  standalone: true,
-  template: `
-    @if (carregando$ | async) {
-      <p>Carregando tarefas...</p>
-    }
-
-    <h3>Pendentes</h3>
-    @for (todo of pendentes$ | async; track todo.id) {
-      <label>
-        <input
-          type="checkbox"
-          [checked]="todo.concluida"
-          (change)="alternar(todo.id)"
-        />
-        {{ todo.titulo }}
-      </label>
-    }
-
-    <h3>Todas</h3>
-    @for (todo of todos$ | async; track todo.id) {
-      <p>{{ todo.titulo }} — {{ todo.concluida ? 'Concluída' : 'Pendente' }}</p>
-    }
-  `,
-})
-export class TodoListComponent implements OnInit {
-  readonly todos$ = this.store.select(selectAllTodos);
-  readonly pendentes$ = this.store.select(selectPendingTodos);
-  readonly carregando$ = this.store.select(selectCarregando);
-
-  constructor(private readonly store: Store) {}
-
-  ngOnInit(): void {
-    this.store.dispatch(TodoActions.loadTodos());
-  }
-
-  alternar(id: number): void {
-    this.store.dispatch(TodoActions.toggleTodoComplete({ id }));
-  }
-}
-```
-
-#### Decisões de design e por quê
-
-- **Tipagem forte de ponta a ponta** — `TodoState` explícito, cada `on()` retorna `TodoState` tipado.
-- **`carregando` e `erro` no estado** — modela explicitamente os três estados de uma operação assíncrona.
-- **`selectPendingTodos` composto a partir de `selectAllTodos`** — aproveita a memoização do NgRx.
-- **`switchMap` no effect** — cancela requisição anterior caso `loadTodos` seja disparado novamente.
-- **`catchError` dentro do `switchMap` interno** — evita que um erro encerre o effect permanentemente.
-- **`createActionGroup`** — reduz boilerplate e agrupa ações relacionadas.
+Link do projecto : 
 
