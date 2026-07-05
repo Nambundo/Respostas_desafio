@@ -1,5 +1,5 @@
 # Exercício NgRx - Todo List
-
+Neste Repositorio tem a resposta da questão 3.2 Gerencimento de Estado com NgRx (Feature To-do)
 Projeto Angular 17+ pronto para rodar, implementando o exercício de Gerenciamento de Estado com NgRx.
 
 ## O que tem no projeto
