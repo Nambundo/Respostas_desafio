@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "ng serve",
-    "build": "npx ng build",
+    "build": "node ./node_modules/@angular/cli/bin/ng build",
     "test": "ng test"
   },
   "private": true,
