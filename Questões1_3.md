@@ -775,6 +775,6 @@ Implementar a estrutura de estado para uma lista de tarefas (To-do) utilizando o
 - **Effect**: fluxo assíncrono — ao disparar `loadTodos`, chamada HTTP mockada e dispatch de sucesso/erro.
 
 ### Resposta
-Link do projecto : 
-Link do Github : 
+Link do GitHub: https://github.com/Nambundo/Respostas_desafio
+Link do deploy na vercel: https://respostas-desafio-jpcz-ibno0mtal-nambundos-projects.vercel.app/
 
