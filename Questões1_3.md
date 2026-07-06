@@ -762,6 +762,7 @@ Criar um componente de contador de itens no carrinho usando exclusivamente Signa
 
 ### Resposta: 
 Link : do GitHub :https://github.com/Nambundo/contador_signais/tree/main
+
 Link do deploy na vercel: https://contador-signais-rust.vercel.app/
 
 ## 3.2 Gerenciamento de Estado com NgRx (Feature To-do)
@@ -776,5 +777,6 @@ Implementar a estrutura de estado para uma lista de tarefas (To-do) utilizando o
 
 ### Resposta
 Link do GitHub: https://github.com/Nambundo/Respostas_desafio
+
 Link do deploy na vercel: https://respostas-desafio-jpcz-ibno0mtal-nambundos-projects.vercel.app/
 
