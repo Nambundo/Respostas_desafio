@@ -62,7 +62,7 @@ class Verdureira {
 }
 ```
 
-### Resposta
+### Resposta : 
 
 #### Problemas identificados
 
@@ -158,7 +158,7 @@ filtrarEPaginar<T>(
 ): Pagina<T>
 ```
 
-### Resposta
+### Resposta : 
 
 ```typescript
 interface PaginaParams {
@@ -295,7 +295,7 @@ export class AppComponent implements OnInit, OnDestroy {
 }
 ```
 
-### Resposta
+### Resposta : 
 
 #### O problema
 
@@ -421,7 +421,7 @@ ngOnInit(): void {
 }
 ```
 
-### Resposta
+### Resposta : 
 
 #### O problema
 
@@ -530,7 +530,7 @@ Implementar um campo de busca reativo em um componente Angular que:
 
 Mostrar serviço, componente e template com `async pipe`.
 
-### Resposta
+### Resposta : 
 
 #### Serviço
 
@@ -678,7 +678,7 @@ Considerando uma lista com centenas de itens renderizados com `@for` (`ngFor`), 
 - Como `ChangeDetectionStrategy.OnPush` pode reduzir ciclos desnecessários de detecção neste cenário
 - Qual seria o impacto de usar a estratégia `Default` neste caso
 
-### Resposta
+### Resposta : 
 
 #### 1. `trackBy` — por que e como
 
